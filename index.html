@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeples &amp; Cubes — библиотека игр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #120a1e;
+    --card: #1d1330;
+    --line: #34204d;
+    --pink: #e0299c;
+    --violet: #7b2ff2;
+    --ink: #f5eefc;
+    --muted: #b6a4d6;
+    --muted-2: #8a76ad;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0;
+    background:
+      radial-gradient(55% 40% at 90% -5%, rgba(224,41,156,.18), transparent 60%),
+      radial-gradient(45% 35% at 0% 0%, rgba(123,47,242,.16), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    line-height: 1.5;
+  }
+  a{ color: inherit; }
+  h1, .brand-name{ font-family: 'Unbounded', sans-serif; margin: 0; letter-spacing: -0.01em; }
+
+  header{
+    max-width: 900px; margin: 0 auto; padding: 48px 24px 28px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px;
+  }
+  .brand{ display: flex; align-items: center; gap: 14px; text-decoration: none; }
+  .brand img{ width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 6px 16px rgba(224,41,156,.35)); }
+  .brand-name{ font-size: 23px; font-weight: 800; background: linear-gradient(100deg,#ff6fd8,var(--pink) 45%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .brand-sub{ display:block; font-size:13px; font-weight:500; color:var(--muted-2); margin-top:2px; }
+  .social{ display:flex; gap:10px; margin-left:auto; }
+  .social a{ display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.03); text-decoration:none; font-size:13px; font-weight:600; }
+  .social a:hover{ border-color: var(--pink); background: rgba(224,41,156,.12); }
+  .social svg{ width:15px; height:15px; }
+
+  .intro{ max-width: 900px; margin: 0 auto; padding: 0 24px 30px; }
+  .intro h1{ font-size: clamp(24px,3.4vw,34px); font-weight:600; max-width: 24ch; }
+  .intro p{ color: var(--muted); font-size:15px; max-width:60ch; margin-top:10px; }
+
+  .filters{ max-width: 900px; margin: 0 auto; padding: 0 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .search{
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--line); border-radius: 12px; padding: 11px 16px;
+    background: rgba(255,255,255,.02);
+  }
+  .search svg{ width: 16px; height: 16px; color: var(--muted-2); flex: none; }
+  .search input{
+    border: 0; background: none; outline: none; color: var(--ink);
+    font-family: 'Manrope', sans-serif; font-size: 14px; width: 100%;
+  }
+  .search input::placeholder{ color: var(--muted-2); }
+  .filter-group{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .filter-label{ font-size: 12px; color: var(--muted-2); margin-right: 4px; white-space: nowrap; }
+  .chip{
+    border: 1px solid var(--line); background: rgba(255,255,255,.02); color: var(--muted);
+    border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+    font-family: 'Manrope', sans-serif; cursor: pointer; transition: all .15s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip:hover{ border-color: var(--pink); color: var(--ink); }
+  .chip.active{
+    border-color: var(--pink);
+    background: linear-gradient(100deg, rgba(224,41,156,.28), rgba(123,47,242,.28));
+    color: var(--ink);
+  }
+  .chip .mini-dice{ display:inline-flex; gap:2px; }
+  .chip .mini-dice svg{ width:9px; height:9px; }
+  .chip .mini-dice .pip{ fill: currentColor; }
+  .result-count{ font-size: 12px; color: var(--muted-2); }
+  .empty-state{ padding: 40px 4px; color: var(--muted-2); font-size: 14px; text-align: center; }
+
+  .list{ max-width: 900px; margin: 0 auto 80px; padding: 0 24px; border-top: 1px solid var(--line); }
+  .row{
+    display: grid;
+    grid-template-columns: 46px 1fr auto auto;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:hover{ background: rgba(255,255,255,.02); }
+  .swatch{
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg,#2a1445,#4a1a5c 45%,#b21f8f 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .swatch svg{ width: 55%; opacity:.55; }
+  .row-text h3{ font-size:15px; font-weight:600; margin:0 0 3px; }
+  .row-text p{ margin:0; font-size:13px; color: var(--muted); max-width: 46ch; }
+  .dice{ display:inline-flex; gap:3px; }
+  .dice svg{ width:13px; height:13px; }
+  .dice svg .pip{ fill: var(--line); }
+  .dice svg.on .pip{ fill: var(--pink); }
+  .dice svg .face{ fill:none; stroke: var(--line); stroke-width:1.6; }
+  .dice svg.on .face{ stroke: var(--pink); }
+  .time{ font-size:13px; color: var(--muted-2); white-space: nowrap; display:flex; align-items:center; gap:6px; }
+  .time svg{ width:13px; height:13px; }
+
+  @media (max-width: 640px){
+    .row{ grid-template-columns: 40px 1fr; row-gap: 6px; }
+    .row .time, .row .dice{ grid-column: 2; }
+  }
+
+  footer{
+    max-width: 900px; margin: 0 auto; padding: 20px 24px 60px; color: var(--muted-2);
+    font-size: 13px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  footer a{ color: var(--muted); text-decoration:none; }
+  footer a:hover{ color: var(--pink); }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="https://vk.ru/meeples_cubes" target="_blank" rel="noopener">
+    <img src="logo.png" alt="Meeples & Cubes">
+    <span><span class="brand-name">Meeples &amp; Cubes</span><span class="brand-sub">библиотека настольных игр</span></span>
+  </a>
+  <nav class="social">
+    <a href="https://vk.ru/meeples_cubes" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.2 17.7c-4.7 0-7.6-3.4-7.7-9h2.5c.1 4 1.8 5.8 3.2 6.1V8.7h2.4v3.6c1.3-.1 2.7-1.7 3.2-3.6h2.3c-.4 2.3-2 4-3.2 4.7 1.2.6 3 2 3.7 4.3h-2.6c-.5-1.8-2-3.2-4-3.4v3.4h-.3z"/></svg>
+      ВКонтакте
+    </a>
+    <a href="https://t.me/meeplescubes" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 4.5 2.8 11.9c-1.1.4-1.1 1.1-.2 1.4l4.8 1.5 1.8 5.6c.2.6.4.8.8.8.4 0 .6-.2.9-.5l2.2-2.1 4.6 3.4c.8.5 1.4.2 1.6-.7l3-14.1c.3-1.2-.4-1.7-1.2-1.4-.2.1-.2.1-.6.1z"/></svg>
+      Telegram
+    </a>
+  </nav>
+</header>
+
+<section class="intro">
+  <h1>Что у нас есть на игротеке</h1>
+  <p>Компактный список — удобно, если хочется быстро пробежаться глазами по всей библиотеке и сравнить время партий.</p>
+</section>
+
+<div class="filters">
+  <label class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="text" id="search-input" placeholder="Поиск по названию или описанию…">
+  </label>
+
+  <div class="filter-group" id="diff-filters">
+    <span class="filter-label">Сложность:</span>
+  </div>
+
+  <div class="filter-group" id="time-filters">
+    <span class="filter-label">Время партии:</span>
+  </div>
+
+  <span class="result-count" id="result-count"></span>
+</div>
+
+<div class="list" id="game-list"></div>
+
+<footer>
+  <span>Meeples &amp; Cubes — игротека, Бакунина 5</span>
+  <span><a href="https://vk.ru/meeples_cubes" target="_blank" rel="noopener">vk.ru/meeples_cubes</a> · <a href="https://t.me/meeplescubes" target="_blank" rel="noopener">t.me/meeplescubes</a></span>
+</footer>
+
+<script>
+const games = [
+  { name: "Сабика", desc: "Три ронделя: стройка Альгамбры, стихи на её стенах и торговые пути по Европе и Магрибу.", diff: 4, time: "90–120 мин", tmax: 120 },
+  { name: "Альгамбра", desc: "Скупаете постройки за валюту разных стран, собираете лучший дворцовый комплекс.", diff: 3, time: "60–90 мин", tmax: 90 },
+  { name: "Дорожные сети", desc: "Roll-and-write: бросаете кубики, рисуете дорожную и ж/д сеть на своём листе.", diff: 2, time: "20–30 мин", tmax: 30 },
+  { name: "Тип Топ", desc: "Кооп party-игра: капитан зачитывает тему, команда расставляет ответы по возрастанию.", diff: 1, time: "15–20 мин", tmax: 20 },
+  { name: "Холст", desc: "Драфт карт-слоёв, чтобы получилась цельная картина. Уточните описание под свою копию.", diff: 2, time: "20–30 мин", tmax: 30 },
+  { name: "Фотограф", desc: "Игра о выстраивании кадра и работе с композицией. Уточните описание под свою копию.", diff: 2, time: "30–45 мин", tmax: 45 },
+  { name: "Азул: Сад Королевы", desc: "Выкладываете плитки-изразцы по мозаичным правилам — теперь в саду при дворце.", diff: 2, time: "30–45 мин", tmax: 45 },
+  { name: "Азул: Летний дворец", desc: "Часть семейства Azul с шестиугольными плитками и своей схемой очков.", diff: 2, time: "30–45 мин", tmax: 45 },
+  { name: "Робинзон Крузо: Приключения на таинственном острове", desc: "Тяжёлый кооп-сурвайвл: высадка на острове, партии почти всегда на грани.", diff: 5, time: "90–150 мин", tmax: 150 },
+  { name: "Драфтозавры", desc: "Лёгкий филлер: на скорость драфтите динозавров по вольерам зоопарка.", diff: 1, time: "15–20 мин", tmax: 20 },
+  { name: "Нейрогонки", desc: "Игра на скорость и реакцию с режимами под разный возраст и уровень.", diff: 1, time: "10–20 мин", tmax: 20 },
+  { name: "Нидавеллир", desc: "Скрытый драфт карт гномов: ставки на монеты, набор войска для похода.", diff: 3, time: "45–60 мин", tmax: 60 },
+  { name: "Время кофе", desc: "Камерная игра для небольшой компании. Уточните описание под свою копию.", diff: 2, time: "20–30 мин", tmax: 30 },
+  { name: "Уютная опушка", desc: "Спокойная семейная игра с лесной тематикой. Уточните описание под свою копию.", diff: 2, time: "30–45 мин", tmax: 45 },
+  { name: "Руммикуб", desc: "Собираете последовательности и наборы чисел, первым выкладывая все фишки.", diff: 2, time: "30–45 мин", tmax: 45 },
+  { name: "Индустрия (с дополнением)", desc: "Экономическая стратегия с добавленным модулем правил. Уточните описание.", diff: 3, time: "60–90 мин", tmax: 90 },
+  { name: "Опасные слова", desc: "Party-игра на объяснение слов с ограничениями в формулировках.", diff: 1, time: "15–20 мин", tmax: 20 },
+  { name: "Битва за Рокуган", desc: "По вселенной Legend of the Five Rings: семь кланов борются за провинции.", diff: 3, time: "60–90 мин", tmax: 90 },
+  { name: "Совпадение", desc: "Игра на скорость и внимательность. Уточните описание под свою копию.", diff: 1, time: "15–20 мин", tmax: 20 },
+  { name: "Счастливый билет", desc: "Лёгкая карточная игра. Уточните описание под свою копию.", diff: 1, time: "15–20 мин", tmax: 20 },
+  { name: "Земля", desc: "Тэйбл-билдинг: выращиваете экосистему острова из карт флоры и фауны.", diff: 3, time: "45–90 мин", tmax: 90 },
+  { name: "Первый контакт", desc: "Игра о встрече с неизвестной цивилизацией. Уточните описание под свою копию.", diff: 2, time: "30–60 мин", tmax: 60 },
+  { name: "Джунго", desc: "Абстрактная стратегия на тактику и планирование ходов. Уточните описание.", diff: 3, time: "20–40 мин", tmax: 40 },
+  { name: "Лемминги", desc: "Лёгкая семейная игра. Уточните описание под свою копию.", diff: 1, time: "20–30 мин", tmax: 30 }
+];
+
+const timeBuckets = [
+  { key: "short", label: "до 30 мин", test: g => g.tmax <= 30 },
+  { key: "mid", label: "30–60 мин", test: g => g.tmax > 30 && g.tmax <= 60 },
+  { key: "long", label: "60–90 мин", test: g => g.tmax > 60 && g.tmax <= 90 },
+  { key: "xlong", label: "90+ мин", test: g => g.tmax > 90 }
+];
+
+const state = { query: "", diffs: new Set(), times: new Set() };
+
+function diceSvg(n, on){
+  const layouts = { 1:[[1,1]], 2:[[0,0],[2,2]], 3:[[0,0],[1,1],[2,2]], 4:[[0,0],[0,2],[2,0],[2,2]], 5:[[0,0],[0,2],[1,1],[2,0],[2,2]] };
+  const pos = layouts[n] || layouts[1];
+  const coord = i => 5 + i * 7;
+  const circles = pos.map(([r,c]) => `<circle class="pip" cx="${coord(c)}" cy="${coord(r)}" r="2.1"/>`).join('');
+  return `<svg class="${on ? 'on' : ''}" viewBox="0 0 24 24"><rect class="face" x="2" y="2" width="20" height="20" rx="5"/>${circles}</svg>`;
+}
+function diceRow(level){
+  let out = '';
+  for(let i=1;i<=5;i++){ out += diceSvg(i, i<=level); }
+  return `<span class="dice">${out}</span>`;
+}
+
+const listEl = document.getElementById('game-list');
+const countEl = document.getElementById('result-count');
+const diffFilterEl = document.getElementById('diff-filters');
+const timeFilterEl = document.getElementById('time-filters');
+const searchInput = document.getElementById('search-input');
+
+// build difficulty chips (1–5)
+for(let level = 1; level <= 5; level++){
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.type = 'button';
+  chip.innerHTML = `<span class="mini-dice">${Array.from({length: level}).map(() => '<svg viewBox="0 0 10 10"><circle class="pip" cx="5" cy="5" r="4.5"/></svg>').join('')}</span>`;
+  chip.addEventListener('click', () => {
+    if(state.diffs.has(level)) state.diffs.delete(level); else state.diffs.add(level);
+    chip.classList.toggle('active');
+    render();
+  });
+  diffFilterEl.appendChild(chip);
+}
+
+// build time chips
+timeBuckets.forEach(bucket => {
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.type = 'button';
+  chip.textContent = bucket.label;
+  chip.addEventListener('click', () => {
+    if(state.times.has(bucket.key)) state.times.delete(bucket.key); else state.times.add(bucket.key);
+    chip.classList.toggle('active');
+    render();
+  });
+  timeFilterEl.appendChild(chip);
+});
+
+searchInput.addEventListener('input', e => {
+  state.query = e.target.value.trim().toLowerCase();
+  render();
+});
+
+function matches(g){
+  const q = state.query;
+  if(q && !(g.name.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q))) return false;
+  if(state.diffs.size && !state.diffs.has(g.diff)) return false;
+  if(state.times.size){
+    const inSelected = timeBuckets.some(b => state.times.has(b.key) && b.test(g));
+    if(!inSelected) return false;
+  }
+  return true;
+}
+
+function render(){
+  const shown = games.filter(matches);
+  countEl.textContent = `Показано ${shown.length} из ${games.length}`;
+
+  if(!shown.length){
+    listEl.innerHTML = `<div class="empty-state">Ничего не нашлось — попробуйте изменить фильтры.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = shown.map(g => `
+    <div class="row">
+      <div class="swatch">
+        <svg viewBox="0 0 100 100" fill="none" stroke="white" stroke-width="3">
+          <path d="M50 6 L88 28 V72 L50 94 L12 72 V28 Z M50 6 V94 M12 28 L50 50 L88 28 M12 72 L50 50 L88 72"/>
+        </svg>
+      </div>
+      <div class="row-text">
+        <h3>${g.name}</h3>
+        <p>${g.desc}</p>
+      </div>
+      ${diceRow(g.diff)}
+      <span class="time">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+        ${g.time}
+      </span>
+    </div>
+  `).join('');
+}
+
+render();
+</script>
+</body>
+</html>
